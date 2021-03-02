@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#define   N 64
+#define   N 30
 
 /* 
  * GPU kernel 
@@ -19,13 +19,13 @@ __global__ void MatAdd(float **A, float **B, float **C)
 {
     int i, j, block;
 
-    block = blockIdx;
+    block = blockIdx.x;
     i = threadIdx.x;
     j = threadIdx.y;
     if ( (i < N) && (j < N)) {
        C[i][j] = A[i][j] + B[i][j];
     }
-    printf("process (%i,%i) from block i% finished\n", i,j,block)
+    printf("process (%d,%d) from block %d finished\n", i,j,block);
 }
 
 
