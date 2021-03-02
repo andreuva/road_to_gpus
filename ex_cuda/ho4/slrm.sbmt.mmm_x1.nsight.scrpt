@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+#  usage: sbgpu ./slrm.sbmt.cublas.scrpt
+#         n.b. sbgpu should be an alias defined in ~/.bashrc
+#              already taking care of the reservation and basic 
+#              SLURM job parameters
+#
+
+
+module purge
+module load cuda/9.1.85 
+
+nvcc -o mmm_example_1 mmm_example_1.cu                                     
+
+nv-nsight-cu-cli -f -o profile ./mmm_example_1 
+
+# later on at the desktop,
+# nv-nsight-cu ./profile.nsight-cuprof-report
+
+
+

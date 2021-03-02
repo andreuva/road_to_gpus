@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+#  usage: sbgpu ./slrm.sbmt.cublas_unfd_mem.scrpt
+#         n.b. sbgpu should be an alias defined in ~/.bashrc
+#              already taking care of the reservation and basic 
+#              SLURM job parameters
+#
+
+
+module purge
+module load cuda/9.1.85 
+
+nvcc -o chck_ev_v3 chck_ev_v3.cu -lcublas                                    
+
+./chck_ev_v3
+
+
