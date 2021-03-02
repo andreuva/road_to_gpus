@@ -17,13 +17,15 @@
  */
 __global__ void MatAdd(float **A, float **B, float **C)
 {
-    int i, j;
+    int i, j, block;
 
+    block = blockIdx;
     i = threadIdx.x;
     j = threadIdx.y;
     if ( (i < N) && (j < N)) {
        C[i][j] = A[i][j] + B[i][j];
     }
+    printf("process (%i,%i) from block i% finished\n", i,j,block)
 }
 
 
