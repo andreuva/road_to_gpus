@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#define   N 30
+#define   N 31
 
 /* 
  * GPU kernel 
