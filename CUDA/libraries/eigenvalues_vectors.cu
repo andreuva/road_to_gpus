@@ -19,10 +19,9 @@ void printMatrixArray(int m, int n, const double *A, int lda, const char* name){
         }
         printf("\n");
     }
-    printf("\n");
 }
 
-void printMatrix(int m, int n, double **A, int lda, const char* name){
+void printMatrix(int m, int n, double **A, const char* name){
     for(int row = 0 ; row < m ; row++){
         for(int col = 0 ; col < n ; col++){
             double Areg = A[row][col];
@@ -30,7 +29,6 @@ void printMatrix(int m, int n, double **A, int lda, const char* name){
         }
         printf("\n");
     }
-    printf("\n");
 }
 
 
@@ -42,15 +40,16 @@ int main(int argc, char **argv){
     cusolverEigMode_t jobz;
     cublasFillMode_t uplo;
 
-    int N, i, j;
+    int i, j;
     double *A, **A_host, *Evectors, *Evalues;
     double *device_A = NULL;
     double *device_Eigenvalues = NULL;
+    double *device_work;
     int *device_info = NULL;
-    int info_gpu
+    int info_gpu, lwork;
 
     // memory allocation and parameter set up
-    N = 5;
+    const int N = 5;
 
     A = (double *) malloc(N * N * sizeof(double));
     Evectors = (double *) malloc(N * N * sizeof(double));
@@ -74,10 +73,12 @@ int main(int argc, char **argv){
         }
     }
 
-    printf("================================================")
-    printMatrix(N, N, A_host, N, "A_host");
+    printf("\n================================================\t");
+    printf("Initial Matrices\t");
+    printf("================================================\n");
+    printMatrix(N, N, A_host, "A_host");
+    printf("\n");
     printMatrixArray(N, N, A, N, "A");
-    printf("================================================")
 
     jobz = CUSOLVER_EIG_MODE_VECTOR; // compute eigenvalues and eigenvectors
     uplo = CUBLAS_FILL_MODE_LOWER; 
@@ -96,30 +97,36 @@ int main(int argc, char **argv){
     cudaStat = cudaMemcpy(device_A, A, sizeof(double) * N * N, cudaMemcpyHostToDevice);
     assert(cudaSuccess == cudaStat);
 
+    // step 3: query working space of syevd
+    cusolver_status = cusolverDnDsyevd_bufferSize(cusolver_handle, jobz, uplo, N, device_A, N, device_Eigenvalues, &lwork);
+    assert (cusolver_status == CUSOLVER_STATUS_SUCCESS);
+    cudaStat = cudaMalloc((void**)&device_work, sizeof(double) * lwork);
+    assert(cudaSuccess == cudaStat);
+
+    // step 4: compute eigenvalues/eigenvectors
+    cusolver_status = cusolverDnDsyevd(cusolver_handle, jobz, uplo, N, device_A, N, device_Eigenvalues, device_work, lwork, device_info);
+    assert(CUSOLVER_STATUS_SUCCESS == cusolver_status);
+    cudaStat = cudaDeviceSynchronize();
+    assert(cudaSuccess == cudaStat);
 
     // step 5: retrieve the results from device memory
-    cudaStat = cudaMemcpy(Evalues, device_Eigenvalues, sizeof(double)*m, cudaMemcpyDeviceToHost);
+    cudaStat = cudaMemcpy(Evalues, device_Eigenvalues, sizeof(double)*N, cudaMemcpyDeviceToHost);
     assert(cudaSuccess == cudaStat);
-    cudaStat = cudaMemcpy(Evectors, device_A, sizeof(double)*lda*m, cudaMemcpyDeviceToHost);
+    cudaStat = cudaMemcpy(Evectors, device_A, sizeof(double)*N*N, cudaMemcpyDeviceToHost);
     assert(cudaSuccess == cudaStat);
     cudaStat = cudaMemcpy(&info_gpu, device_info, sizeof(int), cudaMemcpyDeviceToHost);
     assert(cudaSuccess == cudaStat);
 
     // step 6: print out results, ie eigenvalues and corresponding eigenvectors
-    printf(" Eigenvalues\n");
+    printf("\n================================================\t");
+    printf("Eigenvalues\t");
+    printf("================================================\n");
     printMatrixArray(1, N, Evalues, 1, "lambda");
-    printf("================================================")
-    printf(" Corresponding Eigenvectors\n");
+    printf("\n================================================\t");
+    printf("Eigenvectors\t");
+    printf("================================================\n");
     printMatrixArray(N, N, Evectors, N, "V");
-    printf("================================================")
     printf("\n");
-    
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < N; j++) {
-            printf("%10.2lf", Evectors[(j*m)+i]);
-        }
-        printf("\n");
-    }
   
     // step 7: free all allocated memory and destroy context
    cudaFree(device_A);
