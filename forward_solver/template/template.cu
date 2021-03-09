@@ -20,6 +20,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <complex.h>
+#include <integratives.h>
+#include <params.h>
 
 // includes CUDA
 #include <cuda_runtime.h>
