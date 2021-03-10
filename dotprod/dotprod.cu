@@ -11,6 +11,7 @@
 #include <string.h>
 #include <math.h>
 #include <complex.h>
+#include <time.h>
 
 // includes CUDA
 #include <cuda_runtime.h>
@@ -26,7 +27,7 @@ extern "C"
 float dotprod(float *A, float *B, int len);
 
 // shared memory managed for the GPU
-__device__ __managed__ float A[ARRAYDIM], B[ARRAYDIM], result;
+__device__ __managed__ float A[ARRAYDIM], B[ARRAYDIM], result = 0 ;
 
 
 __global__ void array_init(){    
@@ -45,10 +46,12 @@ __global__ void array_init(){
 // Function of the dotproduct in the kernel
 __global__ void dotprod_kernel(){    
     int i;
+    float mult;
 
     i = (blockIdx.x * blockDim.x) + threadIdx.x;
 
-    result += A[i] * B[i];
+    mult = A[i]*B[i];
+    atomicAdd( &result, mult);
 
     return;
 }
@@ -75,9 +78,9 @@ int main(int argc, char **argv)
     sdkStartTimer(&timer);
 
     array_init<<< grid, threads >>>();
-    cudaDeviceSyncronize();
+    cudaDeviceSynchronize();
     dotprod_kernel<<< grid, threads >>>();
-    cudaDeviceSyncronize();
+    cudaDeviceSynchronize();
 
     sdkStopTimer(&timer);
     printf("Processing time for GPU code: %f (ms)\n", sdkGetTimerValue(&timer));
@@ -85,9 +88,15 @@ int main(int argc, char **argv)
 
     gpu_result = result;
     result = 0;
-
+    
+    clock_t t;
+    t = clock();
     cpu_result = dotprod(A, B, ARRAYDIM);
-
-    printf("CPU result is: %f\nGPU result is: %f", cpu_result, gpu_result)
+    t = clock() - t; 
+    
+    double time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
+ 
+    printf("Processing time for CPU code: %f (ms)\n", time_taken);
+    printf("CPU result is: %f\nGPU result is: %f\n", cpu_result, gpu_result);
 
 }
