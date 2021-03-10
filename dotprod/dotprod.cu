@@ -21,7 +21,7 @@
 #include <helper_functions.h> // helper functions for SDK examples
 
 // Define the dimension of the array
-#define ARRAYDIM 32768
+#define ARRAYDIM 131072
 
 extern "C"
 float dotprod(float *A, float *B, int len);
@@ -66,19 +66,20 @@ int main(int argc, char **argv)
     // use command-line specified CUDA device, otherwise use device with highest Gflops/s
     float gpu_result, cpu_result;
     int devID = findCudaDevice(argc, (const char **)argv);
-    unsigned int num_threads = 1024, num_blocks;
+    unsigned int num_threads = 256, num_blocks;
 
     num_blocks = ARRAYDIM/num_threads;
 
     dim3 grid(num_blocks,1,1);
     dim3 threads(num_threads,1,1);
 
+    array_init<<< grid, threads >>>();
+    cudaDeviceSynchronize();
+
     StopWatchInterface *timer = 0;
     sdkCreateTimer(&timer);
     sdkStartTimer(&timer);
 
-    array_init<<< grid, threads >>>();
-    cudaDeviceSynchronize();
     dotprod_kernel<<< grid, threads >>>();
     cudaDeviceSynchronize();
 
