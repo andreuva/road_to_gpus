@@ -1,123 +1,47 @@
 /***************************************************************
-        DOT PRODUCT FOR NVIDIA GPUS AND CPU CHECK
-    AUTHOR: ANDRES VICENTE AREVALO      DATE:10/03/2021
+*    2 LEVEL ATOM ATMOSPHERE SOLVER CUDA IMPLEMENTATION        *
+*         AUTHOR: ANDRES VICENTE AREVALO                       *
+*    Compilation: make                                         *
 ****************************************************************/
-
-/* Host code that uses dotprod_cpu.c */
-
 // includes, system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <complex.h>
-#include <time.h>
 
 // includes CUDA
 #include <cuda_runtime.h>
 
 // includes, project
-#include <helper_cuda.h>
-#include <helper_functions.h> // helper functions for SDK examples
+#include "params.h"
+#include "integratives.h"
 
-// Define the dimension of the array
-#define ARRAYDIM 131072
-
-extern "C"
-void array_init_cpu(float *A, float *B, int len);
-
-extern "C"
-float dotprod(float *A, float *B, int len);
-
-// shared memory managed for the GPU
-__device__ __managed__ float A[ARRAYDIM], B[ARRAYDIM], result = 0 ;
-
-
-__global__ void array_init_gpu(){    
-    
-    int i;
-
-    i = (blockIdx.x * blockDim.x) + threadIdx.x;
-
-    A[i] = 2;
-    B[i] = 1;
-
-    return;
-}
-
-
-// Function of the dotproduct in the kernel
-__global__ void dotprod_kernel(){    
-    int i;
-    float mult;
-
-    i = (blockIdx.x * blockDim.x) + threadIdx.x;
-
-    mult = A[i]*B[i];
-    atomicAdd( &result, mult);
-
-    return;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Program main to do the dot product and compare it to C
-////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
 {
-    printf("%s Starting...\n\n", argv[0]);
+    const float a = 1;                          /* # dumping Voigt profile a=gam/(2^1/2*sig) */
+    const float r = 1;                          /* # line strength XCI/XLI */
+    const float eps = 1e-4;                     /* # Phot. dest. probability (LTE=1,NLTE=1e-4) */
+    const float dep_col = 1;                    /* # Depolirarization colisions (delta) */
+    const float Hd = 0.20;                      /* # Hanle depolarization factor [1/5, 1] */
 
-    // use command-line specified CUDA device, otherwise use device with highest Gflops/s
-    float gpu_result, cpu_result;
-    int devID = findCudaDevice(argc, (const char **)argv);
-    unsigned int num_threads = 256, num_blocks;
-
-    num_blocks = ARRAYDIM/num_threads;
-
-    dim3 grid(num_blocks,1,1);
-    dim3 threads(num_threads,1,1);
-
-    clock_t t;
-    t = clock();
-    array_init_cpu(A, B, ARRAYDIM);
-    t = clock() - t;
-    
-    double time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
- 
-    printf("Initialization of the array for CPU took: %f (ms)\n", time_taken);
-
-    StopWatchInterface *timer = 0;
-    sdkCreateTimer(&timer);
-    sdkStartTimer(&timer);
-
-    array_init_gpu<<< grid, threads >>>();
-    cudaDeviceSynchronize();
-
-    sdkStopTimer(&timer);
-    printf("Initialization of the array for GPU took: %f (ms)\n", sdkGetTimerValue(&timer));
-    sdkDeleteTimer(&timer);
-
-    timer = 0;
-    sdkCreateTimer(&timer);
-    sdkStartTimer(&timer);
-
-    dotprod_kernel<<< grid, threads >>>();
-    cudaDeviceSynchronize();
-
-    sdkStopTimer(&timer);
-    printf("Processing time for GPU code: %f (ms)\n", sdkGetTimerValue(&timer));
-    sdkDeleteTimer(&timer);
-
-    gpu_result = result;
-    result = 0;
-    
-    t = clock();
-    cpu_result = dotprod(A, B, ARRAYDIM);
-    t = clock() - t; 
-    
-    time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
- 
-    printf("Processing time for CPU code: %f (ms)\n", time_taken);
-    printf("CPU result is: %f\nGPU result is: %f\n", cpu_result, gpu_result);
+    fprintf(stdout, "\n------------------- PARAMETERS OF THE PROBLEM ---------------------\n");
+    fprintf(stdout, "optical thicknes of the lower boundary:            %1.1e \n", zl);
+    fprintf(stdout, "optical thicknes of the upper boundary:            %1.1e \n", zu);
+    fprintf(stdout, "resolution in the z axis:                          %1.3e \n", dz);
+    fprintf(stdout, "total number of points in z:                       %i    \n", nz);
+    fprintf(stdout, "lower/upper frequency limit :                      %1.3e   %1.3e \n", wl, wu);
+    fprintf(stdout, "number points to sample the spectrum:              %i \n", nw);
+    fprintf(stdout, "nodes in the gaussian quadrature (# dirs):         %i \n", qnd);
+    /*fprintf(stdout, "T (isotermic) of the medium:                       %i \n", T);*/
+    fprintf(stdout, "dumping Voigt profile:                             %1.3e \n", a);
+    fprintf(stdout, "line strength XCI/XLI:                             %1.3e \n", r);
+    fprintf(stdout, "Phot. dest. probability (LTE=1,NLTE=1e-4):         %1.3e \n", eps);
+    fprintf(stdout, "Depolirarization colisions (delta):                %f \n", dep_col);
+    fprintf(stdout, "Hanle depolarization factor [1/5, 1]:              %f \n", Hd);
+    fprintf(stdout, "angular momentum of the levels (Ju, Jl):           (%i,%i) \n", ju, jl);
+    fprintf(stdout, "Tolerance for finding the solution:                %f \n", tolerance);
+    fprintf(stdout, "------------------------------------------------------------------\n\n");
 
     return 0;
 }
