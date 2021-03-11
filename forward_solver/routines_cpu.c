@@ -2,8 +2,6 @@
 /*  Subroutines to solve the forward modeling for the SC method       */
 /*  Author: Andres Vicente Arevalo      Date: 20-11-2020              */
 /**********************************************************************/
-#include <complex.h>
-#include <params.h>
 
 /* Function to compute the voigt profile of a line giveng the dumping 
  * nd the frequency at wich to compute it                             */
