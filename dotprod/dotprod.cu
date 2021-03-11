@@ -24,13 +24,16 @@
 #define ARRAYDIM 131072
 
 extern "C"
+void array_init_cpu(float *A, float *B, int len);
+
+extern "C"
 float dotprod(float *A, float *B, int len);
 
 // shared memory managed for the GPU
 __device__ __managed__ float A[ARRAYDIM], B[ARRAYDIM], result = 0 ;
 
 
-__global__ void array_init(){    
+__global__ void array_init_gpu(){    
     
     int i;
 
@@ -73,10 +76,27 @@ int main(int argc, char **argv)
     dim3 grid(num_blocks,1,1);
     dim3 threads(num_threads,1,1);
 
-    array_init<<< grid, threads >>>();
-    cudaDeviceSynchronize();
+    clock_t t;
+    t = clock();
+    array_init_cpu(A, B, ARRAYDIM);
+    t = clock() - t;
+    
+    double time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
+ 
+    printf("Initialization of the array for CPU took: %f (ms)\n", time_taken);
 
     StopWatchInterface *timer = 0;
+    sdkCreateTimer(&timer);
+    sdkStartTimer(&timer);
+
+    array_init_gpu<<< grid, threads >>>();
+    cudaDeviceSynchronize();
+
+    sdkStopTimer(&timer);
+    printf("Initialization of the array for GPU took: %f (ms)\n", sdkGetTimerValue(&timer));
+    sdkDeleteTimer(&timer);
+
+    timer = 0;
     sdkCreateTimer(&timer);
     sdkStartTimer(&timer);
 
@@ -90,14 +110,14 @@ int main(int argc, char **argv)
     gpu_result = result;
     result = 0;
     
-    clock_t t;
     t = clock();
     cpu_result = dotprod(A, B, ARRAYDIM);
     t = clock() - t; 
     
-    double time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
+    time_taken = ((double)t)/CLOCKS_PER_SEC *1000; // in ms
  
     printf("Processing time for CPU code: %f (ms)\n", time_taken);
     printf("CPU result is: %f\nGPU result is: %f\n", cpu_result, gpu_result);
 
+    return 0;
 }

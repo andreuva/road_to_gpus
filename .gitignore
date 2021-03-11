@@ -8,3 +8,4 @@
 bin/*
 *.save
 *_exec
+*common*
