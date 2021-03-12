@@ -8,7 +8,7 @@
 #include <cuda_runtime.h>
 #include "cuda_extension.h"
 
-__global__ void kernel1() { 
+__global__ void kernel1() {
     printf("Hello APP from GPU!\n");
 }
 

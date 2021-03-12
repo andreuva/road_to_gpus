@@ -2,6 +2,14 @@
 /*  Subroutines to solve the forward modeling for the SC method       */
 /*  Author: Andres Vicente Arevalo      Date: 20-11-2020              */
 /**********************************************************************/
+#include <stdio.h>
+#include <complex.h>
+#include "params.h"
+#include <math.h>
+
+const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
+const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
+/*const double w0   c/(500e-9)*/           /* wavelength of the transition (nm --> hz) */
 
 /* Function to compute the voigt profile of a line giveng the dumping 
  * nd the frequency at wich to compute it                             */

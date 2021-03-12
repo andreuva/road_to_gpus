@@ -10,15 +10,27 @@
 #include <complex.h>
 #include "params.h"
 #include "integratives.h"
-#include "routines_cpu.c"
+/* #include "routines_cpu.c" */
 #include <cuda_runtime.h>
 #include "cuda_extension.h"
+
+const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
+const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
+/*const double w0   c/(500e-9)*/           /* wavelength of the transition (nm --> hz) */
 
 const float a = 1;                      /* # dumping Voigt profile a=gam/(2^1/2*sig) */
 const float r = 1;                     /* # line strength XCI/XLI */
 const float eps = 1e-4;                    /* # Phot. dest. probability (LTE=1,NLTE=1e-4) */
 const float dep_col = 1;                   /* # Depolirarization colisions (delta) */
 const float Hd = 0.20;                        /* # Hanle depolarization factor [1/5, 1] */
+
+double complex voigt(double v, double a);
+
+void psi_calc(double deltaum[], double deltaup[], \
+              double psim[], double psio[], double psip[], int mode);
+
+void RTE_SC_solve(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
+                 double SQ[nz][nw][qnd], double lambda[][nw][qnd], double tau[nz][nw], double mu[qnd]);
 
 /* -------------------------------------------------------------------*/
 /* ------------------------- MAIN PROGRAM ----------------------------*/

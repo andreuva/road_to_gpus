@@ -21,8 +21,3 @@
 
 #define tolerance 1e-10           /* # Tolerance for finding the solution */
 #define max_iter 500              /* maximum number of iterations */
-
-/*const double w0   c/(500e-9)*/           /* wavelength of the transition (nm --> hz) */
-
-const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
-const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
