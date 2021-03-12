@@ -5,12 +5,8 @@
 ****************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <cuda_runtime.h>
-#include "params.h"
-extern "C"{
-    #include "routines_cpu.c"
-}
 #include "cuda_extension.h"
+#include <cuda_runtime.h>
 
 __global__ void kernel1() {
     printf("Hello APP from GPU!\n");
