@@ -138,7 +138,7 @@ void RTE_SC_solve_gpu(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][
     dim3 thrds_per_block(qnd,1,1);
     dim3 blcks_per_grid(1,1,1);
 
-        // allocate device memory
+    // allocate device memory
     double ***II_dev, ***QQ_dev;
     double ***SI_dev, ***SQ_dev;
     double ***lambda_dev, **tau_dev, *mu_dev;
@@ -179,20 +179,20 @@ void RTE_SC_solve_gpu(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][
         }
     }
 
-    for (i=0; i<nz; i+=8) {
-        for (j=0; j<nw; j+=8) {
-            for (k=0; k<qnd; k+=8) {
-                printf(" I_dev: %2.8e\t  I: %2.8e  \n", II_dev[i][j][k],II[i][j][k]);
-                // printf(" Q_dev: %1.1e  Q: %1.1e   ", QQ_dev[i][j][k],QQ[i][j][k]);
-                // printf(" SI_dev: %1.1e  SI: %1.1e   ", SI_dev[i][j][k],SI[i][j][k]);
-                // printf(" SQ_dev: %1.1e  SQ: %1.1e   ", SQ_dev[i][j][k],SQ[i][j][k]);
-                // printf(" lamb_dev: %1.1e  lamb: %1.1e   ", lambda_dev[i][j][k],lambda[i][j][k]);
-                // printf(" mu_dev: %1.1e  mu: %1.1e   ", mu_dev[k], mu[k]);
-            }
-            // printf(" tau_dev: %1.1e  tau: %1.1e   ", tau_dev[i][j], tau[i][j]);
-        }
-    }
-    printf("\n============================== \n\n =============================\n");
+    // for (i=0; i<nz; i+=8) {
+    //     for (j=0; j<nw; j+=8) {
+    //         for (k=0; k<qnd; k+=8) {
+    //             printf(" I_dev: %2.8e\t  I: %2.8e  \n", II_dev[i][j][k],II[i][j][k]);
+    //             // printf(" Q_dev: %1.1e  Q: %1.1e   ", QQ_dev[i][j][k],QQ[i][j][k]);
+    //             // printf(" SI_dev: %1.1e  SI: %1.1e   ", SI_dev[i][j][k],SI[i][j][k]);
+    //             // printf(" SQ_dev: %1.1e  SQ: %1.1e   ", SQ_dev[i][j][k],SQ[i][j][k]);
+    //             // printf(" lamb_dev: %1.1e  lamb: %1.1e   ", lambda_dev[i][j][k],lambda[i][j][k]);
+    //             // printf(" mu_dev: %1.1e  mu: %1.1e   ", mu_dev[k], mu[k]);
+    //         }
+    //         // printf(" tau_dev: %1.1e  tau: %1.1e   ", tau_dev[i][j], tau[i][j]);
+    //     }
+    // }
+    // printf("\n============================== \n\n =============================\n");
 
     RTE_SC_kernel<<< blcks_per_grid, thrds_per_block >>>(II_dev, QQ_dev, SI_dev, SQ_dev, lambda_dev, tau_dev, mu_dev);
     cudaDeviceSynchronize();
@@ -212,4 +212,13 @@ void RTE_SC_solve_gpu(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][
             tau[i][j] = tau[i][j];
         }
     }
+
+    cudaFree(II_dev);
+    cudaFree(SI_dev);
+    cudaFree(QQ_dev);
+    cudaFree(SQ_dev);
+    cudaFree(lambda_dev);
+    cudaFree(tau_dev);
+    cudaFree(mu_dev);
+
 }
