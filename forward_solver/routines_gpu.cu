@@ -1,7 +1,7 @@
 /***************************************************************
 *    2 LEVEL ATOM ATMOSPHERE SOLVER CUDA ROUTINES              *
 *         AUTHOR: ANDRES VICENTE AREVALO                       *
-*    Compilation: NVCC                                         *
+*    Compilation: nvcc -c routines_gpu.cu -o routines_gpu.o    *
 ****************************************************************/
 #include <stdio.h>
 #include <stdlib.h>

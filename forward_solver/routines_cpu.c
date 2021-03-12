@@ -1,6 +1,9 @@
 /**********************************************************************/
 /*  Subroutines to solve the forward modeling for the SC method       */
 /*  Author: Andres Vicente Arevalo      Date: 20-11-2020              */
+/*  Compilation:                                                      */
+/*     $ gcc -c routines_cpu.c -o routines_cpu.o \                    */
+/*           -I /usr/local/cuda-11.2/include/. -lstdc++               */
 /**********************************************************************/
 #include <stdio.h>
 #include <complex.h>

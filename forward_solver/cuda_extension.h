@@ -1,4 +1,6 @@
 #ifndef __CUDAEXT__ 
 #define __CUDAEXT__ 
-void launchGPU();
+extern "C"{
+   void launchGPU();
+}
 #endif

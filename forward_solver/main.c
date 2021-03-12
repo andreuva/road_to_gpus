@@ -1,8 +1,11 @@
 /***************************************************************
 *        2 LEVEL ATOM ATMOSPHERE SOLVER                        *
 *         AUTHOR: ANDRES VICENTE AREVALO                       *
-* Compilation: gcc -o main_exec main.c -lm                     *
-            /usr/local/cuda-11.2/lib64/
+* Compilation: gcc -c main.c -o main.o                         *
+*                  -I /usr/local/cuda-11.2/include/. -lstdc++  *
+* Linkage between modules:                                     *
+* $ gcc -o forward_solver routines_gpu.o routines_cpu.o main.o *
+*       -lm -L /usr/local/cuda-11.2/lib64/ -lcudart -lstdc++   *
 ****************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,9 +13,7 @@
 #include <complex.h>
 #include "params.h"
 #include "integratives.h"
-/* #include "routines_cpu.c" */
 #include <cuda_runtime.h>
-#include "cuda_extension.h"
 
 const float a = 1;                      /* # dumping Voigt profile a=gam/(2^1/2*sig) */
 const float r = 1;                     /* # line strength XCI/XLI */
