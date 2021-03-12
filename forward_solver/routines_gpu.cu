@@ -48,7 +48,7 @@ __device__ void psi_calc_kernel(double deltaum[], double deltaup[], \
         }        
     }
     else{
-        fprintf(stdout,"ERROR IN MODE OF THE PSICALC FUNCTION");
+        printf("ERROR IN MODE OF THE PSICALC FUNCTION");
     }
 
     return;
@@ -63,7 +63,7 @@ __global__ void RTE_SC_kernel(double II[][nw][qnd], double QQ[][nw][qnd], double
     double deltaum[nw], deltaup[nw];
     int i,j,k;
 
-    k = threadIdx.x
+    k = threadIdx.x;
     
     if (mu[k] > 0){
         
@@ -74,7 +74,7 @@ __global__ void RTE_SC_kernel(double II[][nw][qnd], double QQ[][nw][qnd], double
             
             if (i < nz-1){
                 for (j = 0; j < nw; j++){ deltaup[j] = fabs((tau[i][j]-tau[i+1][j])/mu[k]); }
-                psi_calc(deltaum, deltaup, psim, psio, psip, 2);
+                psi_calc_kernel(deltaum, deltaup, psim, psio, psip, 2);
 
                 for (j = 0; j < nw; j++){
                     II[i][j][k] = II[i-1][j][k]*exp(-deltaum[j]) + SI[i-1][j][k]*psim[j] + SI[i][j][k]*psio[j] + SI[i+1][j][k]*psip[j];
@@ -85,7 +85,7 @@ __global__ void RTE_SC_kernel(double II[][nw][qnd], double QQ[][nw][qnd], double
                 
             }
             else{
-                psi_calc(deltaum, deltaup, psim, psio, psip, 1);
+                psi_calc_kernel(deltaum, deltaup, psim, psio, psip, 1);
                 for (j = 0; j < nw; j++){
                     II[i][j][k] = II[i-1][j][k]*exp(-deltaum[j]) + SI[i-1][j][k]*psim[j] + SI[i][j][k]*psio[j];
                     QQ[i][j][k] = QQ[i-1][j][k]*exp(-deltaum[j]) + SQ[i-1][j][k]*psim[j] + SQ[i][j][k]*psio[j];
@@ -106,7 +106,7 @@ __global__ void RTE_SC_kernel(double II[][nw][qnd], double QQ[][nw][qnd], double
             if (i > 0){
 
                 for (j = 0; j < nw; j++){ deltaup[j] = fabs((tau[i-1][j]-tau[i][j])/mu[k]); }
-                psi_calc(deltaum, deltaup, psim, psio, psip, 2);
+                psi_calc_kernel(deltaum, deltaup, psim, psio, psip, 2);
 
                 for (j = 0; j < nw; j++){
                     II[i][j][k] = II[i+1][j][k]*exp(-deltaum[j]) + SI[i+1][j][k]*psim[j] + SI[i][j][k]*psio[j] + SI[i-1][j][k]*psip[j];
@@ -117,7 +117,7 @@ __global__ void RTE_SC_kernel(double II[][nw][qnd], double QQ[][nw][qnd], double
                 
             }
             else{
-                psi_calc(deltaum, deltaup, psim, psio, psip, 1);
+                psi_calc_kernel(deltaum, deltaup, psim, psio, psip, 1);
 
                 for (j = 0; j < nw; j++){
                     II[i][j][k] = II[i+1][j][k]*exp(-deltaum[j]) + SI[i+1][j][k]*psim[j] + SI[i][j][k]*psio[j];
@@ -147,6 +147,6 @@ void RTE_SC_solve_gpu(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][
     cudaMemPrefetchAsync(tau, nz*nw * sizeof(double), 0, NULL);
     cudaMemPrefetchAsync(mu, qnd * sizeof(double), 0, NULL);
 
-    RTE_SC_kernel<<<blcks_per_grid, thrds_per_block>>>>(II, QQ, SI, SQ, lambda, taus, mus);
+    RTE_SC_kernel<<< blcks_per_grid, thrds_per_block >>>(II, QQ, SI, SQ, lambda, tau, mu);
     cudaDeviceSynchronize();
 }
