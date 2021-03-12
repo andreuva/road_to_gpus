@@ -32,7 +32,7 @@ extern void psi_calc(double deltaum[], double deltaup[], \
 extern void RTE_SC_solve(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
                  double SQ[nz][nw][qnd], double lambda[][nw][qnd], double tau[nz][nw], double mu[qnd]);
 
-extern void launchGPU(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
+extern void RTE_SC_solve_gpu(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
                  double SQ[nz][nw][qnd], double lambda[][nw][qnd], double tau[nz][nw], double mu[qnd]);
 
 /* -------------------------------------------------------------------*/
@@ -131,7 +131,8 @@ int main() {
     for(l=1; l<=max_iter; l++){         /* loop with the total iterations */
 
         /*--------------------------- SOLVE THE RTE --------------------------*/
-        launchGPU(II, QQ, SI, SQ, lambda, taus, mus);
+        RTE_SC_solve_gpu(II, QQ, SI, SQ, lambda, taus, mus);
+        return 0;
         RTE_SC_solve(II, QQ, SI, SQ, lambda, taus, mus);
 
         /* Check for negative intensities to stop and report a problem */
