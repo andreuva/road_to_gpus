@@ -10,8 +10,8 @@
 #include "params.h"
 #include <math.h>
 
-const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
-const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
+static const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
+static const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
 /*const double w0   c/(500e-9)*/           /* wavelength of the transition (nm --> hz) */
 
 /* Function to compute the voigt profile of a line giveng the dumping 

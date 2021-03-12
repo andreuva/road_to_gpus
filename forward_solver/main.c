@@ -15,6 +15,9 @@
 #include "integratives.h"
 #include <cuda_runtime.h>
 
+static const short nw = (wu-wl)/dw + 1;                /* # points to sample the spectrum */
+static const short nz = (zu-zl)/dz + 1;                        /* # number of points in the z axes */
+
 const float a = 1;                      /* # dumping Voigt profile a=gam/(2^1/2*sig) */
 const float r = 1;                     /* # line strength XCI/XLI */
 const float eps = 1e-4;                    /* # Phot. dest. probability (LTE=1,NLTE=1e-4) */
