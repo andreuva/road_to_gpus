@@ -29,14 +29,13 @@ extern void psi_calc(double deltaum[], double deltaup[], \
 extern void RTE_SC_solve(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
                  double SQ[nz][nw][qnd], double lambda[][nw][qnd], double tau[nz][nw], double mu[qnd]);
 
-extern void launchGPU();
+extern void launchGPU(double II[][nw][qnd], double QQ[][nw][qnd], double SI[nz][nw][qnd],\
+                 double SQ[nz][nw][qnd], double lambda[][nw][qnd], double tau[nz][nw], double mu[qnd]);
 
 /* -------------------------------------------------------------------*/
 /* ------------------------- MAIN PROGRAM ----------------------------*/
 /* -------------------------------------------------------------------*/
 int main() {
-
-    launchGPU();
     
     fprintf(stdout, "\n------------------- PARAMETERS OF THE PROBLEM ---------------------\n");
     fprintf(stdout, "optical thicknes of the lower boundary:            %1.1e \n", zl);
@@ -129,7 +128,7 @@ int main() {
     for(l=1; l<=max_iter; l++){         /* loop with the total iterations */
 
         /*--------------------------- SOLVE THE RTE --------------------------*/
-              
+        launchGPU(II, QQ, SI, SQ, lambda, taus, mus);
         RTE_SC_solve(II, QQ, SI, SQ, lambda, taus, mus);
 
         /* Check for negative intensities to stop and report a problem */
