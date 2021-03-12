@@ -132,8 +132,8 @@ int main() {
 
         /*--------------------------- SOLVE THE RTE --------------------------*/
         RTE_SC_solve_gpu(II, QQ, SI, SQ, lambda, taus, mus);
-        return 0;
-        RTE_SC_solve(II, QQ, SI, SQ, lambda, taus, mus);
+        // return 0;
+        // RTE_SC_solve(II, QQ, SI, SQ, lambda, taus, mus);
 
         /* Check for negative intensities to stop and report a problem */
         for (i = 0; i < nz; i++){ 
