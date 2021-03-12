@@ -2,16 +2,17 @@
 *        2 LEVEL ATOM ATMOSPHERE SOLVER                        *
 *         AUTHOR: ANDRES VICENTE AREVALO                       *
 * Compilation: gcc -o main_exec main.c -lm                     *
+            /usr/local/cuda-11.2/lib64/
 ****************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
-#include "integratives.h"
 #include "params.h"
-#include "subroutines.c"
+#include "integratives.h"
+#include "routines_cpu.c"
 #include <cuda_runtime.h>
-#include <cuda_extension.h>
+#include "cuda_extension.h"
 
 const float a = 1;                      /* # dumping Voigt profile a=gam/(2^1/2*sig) */
 const float r = 1;                     /* # line strength XCI/XLI */

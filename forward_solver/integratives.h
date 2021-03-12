@@ -3,8 +3,6 @@ Gauss-Legendre integration function, gauleg, from "Numerical Recipes in C"
 (Cambridge Univ. Press) by W.H. Press, S.A. Teukolsky, W.T. Vetterling, and
 B.P. Flannery
 *******************************************************************************/
-#include <stdlib.h>
-#include <math.h>
 
 #define EPS 3.0e-16 /* EPS is the relative precision. */
 void gauleg(double x1, double x2, double x[], double w[], int n)

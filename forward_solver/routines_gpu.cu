@@ -3,8 +3,10 @@
 *         AUTHOR: ANDRES VICENTE AREVALO                       *
 *    Compilation: NVCC                                         *
 ****************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
 #include <cuda_runtime.h>
-#include <cuda_extension.h>
+#include "cuda_extension.h"
 
 __global__ void kernel1() { 
     printf("Hello APP from GPU!\n");
